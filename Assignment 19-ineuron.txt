@@ -1,0 +1,542 @@
+1.
+💡 **Merge k Sorted Lists**
+
+You are given an array of `k` linked-lists `lists`, each linked-list is sorted in ascending order.
+
+*Merge all the linked-lists into one sorted linked-list and return it.*
+
+Input: lists = [[1,4,5],[1,3,4],[2,6]]
+Output: [1,1,2,3,4,4,5,6]
+Explanation: The linked-lists are:
+[
+  1->4->5,
+  1->3->4,
+  2->6
+]
+merging them into one sorted list:
+1->1->2->3->4->4->5->6
+
+Input: lists = []
+Output: []
+
+Input: lists = [[]]
+Output: []
+
+**Constraints:**
+
+- `k == lists.length`
+- `0 <= k <= 10000`
+- `0 <= lists[i].length <= 500`
+- `-10000 <= lists[i][j] <= 10000`
+- `lists[i]` is sorted in **ascending order**.
+- The sum of `lists[i].length` will not exceed `10000`.
+
+ans-:
+import java.util.PriorityQueue;
+
+class ListNode {
+    int val;
+    ListNode next;
+
+    ListNode(int val) {
+        this.val = val;
+    }
+}
+
+public class MergeKSortedLists {
+    public ListNode mergeKLists(ListNode[] lists) {
+        PriorityQueue<ListNode> minHeap = new PriorityQueue<>((a, b) -> a.val - b.val);
+        ListNode dummy = new ListNode(0);
+        ListNode tail = dummy;
+
+        for (ListNode node : lists) {
+            if (node != null) {
+                minHeap.offer(node);
+            }
+        }
+
+        while (!minHeap.isEmpty()) {
+            ListNode minNode = minHeap.poll();
+            tail.next = minNode;
+            tail = tail.next;
+
+            if (minNode.next != null) {
+                minHeap.offer(minNode.next);
+            }
+        }
+
+        return dummy.next;
+    }
+
+    public static void main(String[] args) {
+        MergeKSortedLists solution = new MergeKSortedLists();
+
+        // Example 1
+        ListNode[] lists1 = new ListNode[3];
+        lists1[0] = new ListNode(1);
+        lists1[0].next = new ListNode(4);
+        lists1[0].next.next = new ListNode(5);
+        lists1[1] = new ListNode(1);
+        lists1[1].next = new ListNode(3);
+        lists1[1].next.next = new ListNode(4);
+        lists1[2] = new ListNode(2);
+        lists1[2].next = new ListNode(6);
+
+        ListNode merged1 = solution.mergeKLists(lists1);
+        printList(merged1);
+
+        // Example 2
+        ListNode[] lists2 = new ListNode[0];
+        ListNode merged2 = solution.mergeKLists(lists2);
+        printList(merged2);
+
+        // Example 3
+        ListNode[] lists3 = new ListNode[1];
+        lists3[0] = null;
+
+        ListNode merged3 = solution.mergeKLists(lists3);
+        printList(merged3);
+    }
+
+    private static void printList(ListNode head) {
+        ListNode current = head;
+        while (current != null) {
+            System.out.print(current.val + " ");
+            current = current.next;
+        }
+        System.out.println();
+    }
+}
+
+2.💡 **Count of Smaller Numbers After Self**
+
+Given an integer array `nums`, return *an integer array* `counts` *where* `counts[i]` *is the number of smaller elements to the right of* `nums[i]`.
+
+Input: nums = [5,2,6,1]
+Output: [2,1,1,0]
+Explanation:
+To the right of 5 there are2 smaller elements (2 and 1).
+To the right of 2 there is only1 smaller element (1).
+To the right of 6 there is1 smaller element (1).
+To the right of 1 there is0 smaller element.
+
+Input: nums = [-1]
+Output: [0]
+
+Input: nums = [-1,-1]
+Output: [0,0]
+
+**Constraints:**
+
+- `1 <= nums.length <= 100000`
+- `-10000 <= nums[i] <= 10000`
+
+ans-:
+import java.util.Arrays;
+
+public class CountSmallerNumbersAfterSelf {
+    public static int[] countSmaller(int[] nums) {
+        int[] counts = new int[nums.length];
+        int[][] indexedNums = new int[nums.length][2];
+
+        for (int i = 0; i < nums.length; i++) {
+            indexedNums[i] = new int[]{nums[i], i};
+        }
+
+        mergeSort(indexedNums, counts);
+
+        return counts;
+    }
+
+    private static int[][] mergeSort(int[][] nums, int[] counts) {
+        if (nums.length <= 1) {
+            return nums;
+        }
+
+        int mid = nums.length / 2;
+        int[][] left = mergeSort(Arrays.copyOfRange(nums, 0, mid), counts);
+        int[][] right = mergeSort(Arrays.copyOfRange(nums, mid, nums.length), counts);
+
+        int[][] merged = new int[nums.length][2];
+        int i = 0, j = 0, k = 0;
+
+        while (i < left.length && j < right.length) {
+            if (left[i][0] <= right[j][0]) {
+                merged[k] = left[i];
+                counts[left[i][1]] += j;
+                i++;
+            } else {
+                merged[k] = right[j];
+                j++;
+            }
+            k++;
+        }
+
+        while (i < left.length) {
+            merged[k] = left[i];
+            counts[left[i][1]] += j;
+            i++;
+            k++;
+        }
+
+        while (j < right.length) {
+            merged[k] = right[j];
+            j++;
+            k++;
+        }
+
+        return merged;
+    }
+
+    public static void main(String[] args) {
+        int[] nums = {5, 2, 6, 1};
+        int[] counts = countSmaller(nums);
+
+        System.out.println(Arrays.toString(counts));
+    }
+}
+
+3.💡 **Sort an Array**
+
+Given an array of integers `nums`, sort the array in ascending order and return it.
+
+You must solve the problem **without using any built-in** functions in `O(nlog(n))` time complexity and with the smallest space complexity possible.
+
+Input: nums = [5,2,3,1]
+Output: [1,2,3,5]
+Explanation: After sorting the array, the positions of some numbers are not changed (for example, 2 and 3), while the positions of other numbers are changed (for example, 1 and 5).
+
+Input: nums = [5,1,1,2,0,0]
+Output: [0,0,1,1,2,5]
+Explanation: Note that the values of nums are not necessairly unique.
+
+**Constraints:**
+
+- `1 <= nums.length <= 5 * 10000`
+- `-5 * 104 <= nums[i] <= 5 * 10000`
+
+ans-:
+public class SortArray {
+    public static int[] sortArray(int[] nums) {
+        quicksort(nums, 0, nums.length - 1);
+        return nums;
+    }
+
+    private static void quicksort(int[] nums, int low, int high) {
+        if (low < high) {
+            int pivot = partition(nums, low, high);
+            quicksort(nums, low, pivot - 1);
+            quicksort(nums, pivot + 1, high);
+        }
+    }
+
+    private static int partition(int[] nums, int low, int high) {
+        int pivot = nums[high];
+        int i = low - 1;
+
+        for (int j = low; j < high; j++) {
+            if (nums[j] < pivot) {
+                i++;
+                swap(nums, i, j);
+            }
+        }
+
+        swap(nums, i + 1, high);
+        return i + 1;
+    }
+
+    private static void swap(int[] nums, int i, int j) {
+        int temp = nums[i];
+        nums[i] = nums[j];
+        nums[j] = temp;
+    }
+
+    public static void main(String[] args) {
+        int[] nums = {5, 2, 3, 1};
+        int[] sorted = sortArray(nums);
+        for (int num : sorted) {
+            System.out.print(num + " ");
+        }
+    }
+}
+4.
+💡 **Move all zeroes to end of array**
+
+Given an array of random numbers, Push all the zero’s of a given array to the end of the array. For example, if the given arrays is {1, 9, 8, 4, 0, 0, 2, 7, 0, 6, 0}, it should be changed to {1, 9, 8, 4, 2, 7, 6, 0, 0, 0, 0}. The order of all other elements should be same. Expected time complexity is O(n) and extra space is O(1).
+
+Input :  arr[] = {1, 2, 0, 4, 3, 0, 5, 0};
+Output : arr[] = {1, 2, 4, 3, 5, 0, 0, 0};
+
+Input : arr[]  = {1, 2, 0, 0, 0, 3, 6};
+Output : arr[] = {1, 2, 3, 6, 0, 0, 0};
+
+ans-:
+public class PushZerosToEnd {
+    public static void pushZerosToEnd(int[] arr) {
+        int nonZero = 0; // Pointer to track the next non-zero position
+
+        // Traverse the array
+        for (int curr = 0; curr < arr.length; curr++) {
+            // If the current element is non-zero, swap it with the element at the nonZero position
+            if (arr[curr] != 0) {
+                int temp = arr[curr];
+                arr[curr] = arr[nonZero];
+                arr[nonZero] = temp;
+                nonZero++;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        int[] arr = {1, 2, 0, 4, 3, 0, 5, 0};
+        pushZerosToEnd(arr);
+
+        // Print the modified array
+        for (int num : arr) {
+            System.out.print(num + " ");
+        }
+    }
+}
+5.
+💡 **Rearrange array in alternating positive & negative items with O(1) extra space**
+
+Given an **array of positive** and **negative numbers**, arrange them in an **alternate** fashion such that every positive number is followed by a negative and vice-versa maintaining the **order of appearance**. The number of positive and negative numbers need not be equal. If there are more positive numbers they appear at the end of the array. If there are more negative numbers, they too appear at the end of the array.
+
+**Examples:**
+
+> Input:  arr[] = {1, 2, 3, -4, -1, 4}
+Output: arr[] = {-4, 1, -1, 2, 3, 4}
+
+Input:  arr[] = {-5, -2, 5, 2, 4, 7, 1, 8, 0, -8}
+Output: arr[] = {-5, 5, -2, 2, -8, 4, 7, 1, 8, 0}
+>
+
+ans-:
+public class RearrangeArray {
+    public static void rearrange(int[] arr) {
+        int pos = 0; // Pointer for positive numbers
+
+        // Find the position of the first negative number
+        while (pos < arr.length && arr[pos] >= 0) {
+            pos++;
+        }
+
+        // Rearrange the array
+        int neg = pos + 1; // Pointer for negative numbers
+        while (neg < arr.length && pos < arr.length) {
+            // Swap positive and negative numbers
+            int temp = arr[pos];
+            arr[pos] = arr[neg];
+            arr[neg] = temp;
+
+            // Increment pointers
+            pos += 2;
+            neg += 2;
+
+            // Find the next positive number
+            while (pos < arr.length && arr[pos] >= 0) {
+                pos += 2;
+            }
+
+            // Find the next negative number
+            while (neg < arr.length && arr[neg] < 0) {
+                neg += 2;
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        int[] arr = {1, 2, 3, -4, -1, 4};
+        rearrange(arr);
+
+        // Print the rearranged array
+        for (int num : arr) {
+            System.out.print(num + " ");
+        }
+    }
+}
+6.
+💡 **Merge two sorted arrays**
+
+Given two sorted arrays, the task is to merge them in a sorted manner.
+
+**Examples:**
+
+> Input: arr1[] = { 1, 3, 4, 5}, arr2[] = {2, 4, 6, 8} 
+Output: arr3[] = {1, 2, 3, 4, 4, 5, 6, 8}
+
+Input: arr1[] = { 5, 8, 9}, arr2[] = {4, 7, 8}
+Output: arr3[] = {4, 5, 7, 8, 8, 9}
+
+ans-:
+public class MergeSortedArrays {
+    public static int[] mergeArrays(int[] arr1, int[] arr2) {
+        int n1 = arr1.length;
+        int n2 = arr2.length;
+        int[] merged = new int[n1 + n2];
+
+        int i = 0; // Pointer for arr1
+        int j = 0; // Pointer for arr2
+        int k = 0; // Pointer for merged array
+
+        // Merge the arrays
+        while (i < n1 && j < n2) {
+            if (arr1[i] <= arr2[j]) {
+                merged[k++] = arr1[i++];
+            } else {
+                merged[k++] = arr2[j++];
+            }
+        }
+
+        // Copy remaining elements from arr1, if any
+        while (i < n1) {
+            merged[k++] = arr1[i++];
+        }
+
+        // Copy remaining elements from arr2, if any
+        while (j < n2) {
+            merged[k++] = arr2[j++];
+        }
+
+        return merged;
+    }
+
+    public static void main(String[] args) {
+        int[] arr1 = {1, 3, 4, 5};
+        int[] arr2 = {2, 4, 6, 8};
+        int[] merged = mergeArrays(arr1, arr2);
+
+        // Print the merged array
+        for (int num : merged) {
+            System.out.print(num + " ");
+        }
+    }
+}
+7.
+💡  **Intersection of Two Arrays**
+
+Given two integer arrays `nums1` and `nums2`, return *an array of their intersection*. Each element in the result must be **unique** and you may return the result in **any order**.
+
+Input: nums1 = [1,2,2,1], nums2 = [2,2]
+Output: [2]
+
+Input: nums1 = [4,9,5], nums2 = [9,4,9,8,4]
+Output: [9,4]
+Explanation: [4,9] is also accepted.
+
+**Constraints:**
+
+- `1 <= nums1.length, nums2.length <= 1000`
+- `0 <= nums1[i], nums2[i] <= 1000`
+
+ans-
+import java.util.*;
+
+public class ArrayIntersection {
+    public static int[] intersection(int[] nums1, int[] nums2) {
+        Set<Integer> set = new HashSet<>();
+        Set<Integer> intersect = new HashSet<>();
+
+        // Add elements from nums1 to the set
+        for (int num : nums1) {
+            set.add(num);
+        }
+
+        // Check if elements from nums2 are in the set
+        for (int num : nums2) {
+            if (set.contains(num)) {
+                intersect.add(num);
+            }
+        }
+
+        // Convert set to array
+        int[] result = new int[intersect.size()];
+        int i = 0;
+        for (int num : intersect) {
+            result[i++] = num;
+        }
+
+        return result;
+    }
+
+    public static void main(String[] args) {
+        int[] nums1 = {1, 2, 2, 1};
+        int[] nums2 = {2, 2};
+        int[] intersection = intersection(nums1, nums2);
+
+        // Print the intersection
+        for (int num : intersection) {
+            System.out.print(num + " ");
+        }
+    }
+}
+
+8.💡  **Intersection of Two Arrays II**
+
+Given two integer arrays `nums1` and `nums2`, return *an array of their intersection*. Each element in the result must appear as many times as it shows in both arrays and you may return the result in **any order**.
+
+Input: nums1 = [1,2,2,1], nums2 = [2,2]
+Output: [2,2]
+
+Input: nums1 = [4,9,5], nums2 = [9,4,9,8,4]
+Output: [4,9]
+Explanation: [9,4] is also accepted.
+
+**Constraints:**
+
+- `1 <= nums1.length, nums2.length <= 1000`
+- `0 <= nums1[i], nums2[i] <= 1000`
+
+ans-:
+import java.util.*;
+
+public class ArrayIntersection {
+    public static int[] intersect(int[] nums1, int[] nums2) {
+        Map<Integer, Integer> map = new HashMap<>();
+        List<Integer> intersect = new ArrayList<>();
+
+        // Count frequencies of elements in nums1
+        for (int num : nums1) {
+            map.put(num, map.getOrDefault(num, 0) + 1);
+        }
+
+        // Check frequencies of elements in nums2
+        for (int num : nums2) {
+            if (map.containsKey(num) && map.get(num) > 0) {
+                intersect.add(num);
+                map.put(num, map.get(num) - 1);
+            }
+        }
+
+        // Convert list to array
+        int[] result = new int[intersect.size()];
+        for (int i = 0; i < intersect.size(); i++) {
+            result[i] = intersect.get(i);
+        }
+
+        return result;
+    }
+
+    public static void main(String[] args) {
+        int[] nums1 = {1, 2, 2, 1};
+        int[] nums2 = {2, 2};
+        int[] intersection = intersect(nums1, nums2);
+
+        // Print the intersection
+        for (int num : intersection) {
+            System.out.print(num + " ");
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
